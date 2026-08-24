@@ -7,7 +7,7 @@ import {
   useAppSelector,
 } from "../../../app/hooks";
 import {
-  selectDisplayRows,
+  selectMatchingHcpCount,
   selectRegionNames,
 } from "../explorerSelectors";
 import {
@@ -22,7 +22,7 @@ export function ExplorerToolbar() {
   const dispatch = useAppDispatch();
 
   const regions = useAppSelector(selectRegionNames);
-  const displayRows = useAppSelector(selectDisplayRows);
+
 
   const storedQuery = useAppSelector(
     (state) => state.explorer.view.searchQuery,
@@ -60,11 +60,7 @@ export function ExplorerToolbar() {
     return () => window.clearTimeout(timer);
   }, [dispatch, searchTerm]);
 
-  const visibleHcpCount = displayRows.reduce(
-    (count, row) =>
-      row.rowType === "hcp" ? count + 1 : count,
-    0,
-  );
+  const visibleHcpCount = useAppSelector(selectMatchingHcpCount);
 
   return (
     <section

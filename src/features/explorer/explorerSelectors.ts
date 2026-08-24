@@ -259,3 +259,35 @@ export const selectDisplayRows = createSelector(
     return displayRows;
   },
 );
+
+const selectSearchQuery = (state: RootState) => state.explorer.view.searchQuery;
+
+const selectRegionFilter = (state: RootState) =>
+  state.explorer.view.regionFilter;
+
+export const selectMatchingHcpCount = createSelector(
+  [selectAllHcps, selectSearchQuery, selectRegionFilter],
+  (entities, searchQuery, regionFilter) => {
+    const normalizedQuery = searchQuery.trim().toLocaleLowerCase();
+
+    let count = 0;
+
+    for (const entity of entities) {
+      if (regionFilter !== null && entity.region !== regionFilter) {
+        continue;
+      }
+
+      if (
+        normalizedQuery &&
+        !entity.name.toLocaleLowerCase().includes(normalizedQuery) &&
+        !entity.id.toLocaleLowerCase().includes(normalizedQuery)
+      ) {
+        continue;
+      }
+
+      count += 1;
+    }
+
+    return count;
+  },
+);
