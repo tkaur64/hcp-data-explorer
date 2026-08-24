@@ -5,6 +5,15 @@ export const store = configureStore({
   reducer: {
     explorer: explorerReducer,
   },
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware({
+      immutableCheck: {
+        ignoredPaths: ["explorer.entities"],
+      },
+      serializableCheck: {
+        ignoredPaths: ["explorer.entities"],
+      },
+    }),
 });
 
 export type RootState = ReturnType<typeof store.getState>;

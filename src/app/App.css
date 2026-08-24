@@ -39,6 +39,17 @@
   opacity: 0.72;
 }
 
+.app-loading {
+  min-height: 320px;
+  display: grid;
+  place-items: center;
+  margin: 0;
+  border: 1px solid #bcc8d3;
+  border-radius: var(--tenant-radius, 8px);
+  color: var(--tenant-text, #16202e);
+  background: var(--tenant-surface, #f2f5f8);
+}
+
 .tenant-switcher {
   display: grid;
   min-width: 170px;

@@ -1,11 +1,14 @@
-import type { CSSProperties } from "react";
+import {
+  lazy,
+  Suspense,
+  type CSSProperties,
+} from "react";
 
 import "./App.css";
 import {
   useAppDispatch,
   useAppSelector,
 } from "./hooks";
-import { ExplorerGrid } from "../features/explorer/components/ExplorerGrid";
 import { ExplorerToolbar } from "../features/explorer/components/ExplorerToolbar";
 import { selectExplorerSummary } from "../features/explorer/selectors/explorerSelectors";
 import { setTenantKey } from "../features/explorer/state/explorerSlice";
@@ -13,6 +16,12 @@ import {
   resolveTenantTheme,
   TENANT_THEME_KEYS,
 } from "../theme/resolveTenantTheme";
+
+const ExplorerGrid = lazy(() =>
+  import("../features/explorer/components/ExplorerGrid").then(
+    ({ ExplorerGrid: grid }) => ({ default: grid }),
+  ),
+);
 
 function formatTenantName(tenantKey: string): string {
   return (
@@ -84,7 +93,9 @@ function App() {
 
       <ExplorerToolbar />
 
-      <ExplorerGrid tenantTheme={tenantTheme} />
+      <Suspense fallback={<p className="app-loading">Loading explorer...</p>}>
+        <ExplorerGrid tenantTheme={tenantTheme} />
+      </Suspense>
     </main>
   );
 }

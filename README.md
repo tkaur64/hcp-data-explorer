@@ -97,6 +97,8 @@ npm run lint
 npm test -- --runInBand
 ```
 
+The CI pipeline runs lint, tests and the production build for every push and pull request.
+
 ### Coverage
 
 ```bash
@@ -113,6 +115,8 @@ Current coverage:
 | Lines      |   60.86% |                60% |
 
 The test suite currently contains 29 tests across seven suites.
+
+The explorer grid is loaded lazily so the application shell can render before the AG Grid bundle is downloaded.
 
 ## Using the application
 

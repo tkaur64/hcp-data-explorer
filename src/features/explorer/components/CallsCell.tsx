@@ -61,6 +61,7 @@ function CallsCellEditor({
   displayedText,
 }: CallsCellEditorProps) {
   const dispatch = useAppDispatch();
+  const statusId = `calls-status-${data.rowKey}`;
 
   const [draft, setDraft] =
     useState(displayedText);
@@ -168,6 +169,7 @@ function CallsCellEditor({
         step="1"
         inputMode="numeric"
         value={draft}
+        disabled={edit?.status === "pending"}
         onChange={(event) => {
           setDraft(event.target.value);
           setLocalError(null);
@@ -179,6 +181,7 @@ function CallsCellEditor({
         aria-label={`Calls for ${data.name}`}
         aria-invalid={Boolean(errorMessage)}
         aria-busy={edit?.status === "pending"}
+        aria-describedby={statusMessage ? statusId : undefined}
       />
 
       {hasDraftChange ? (
@@ -214,6 +217,7 @@ function CallsCellEditor({
 
       {statusMessage && (
         <span
+          id={statusId}
           className="calls-cell__status"
           role="status"
           aria-live="polite"

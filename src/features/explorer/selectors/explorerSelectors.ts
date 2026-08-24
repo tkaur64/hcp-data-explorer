@@ -15,6 +15,10 @@ import {
 import { buildGroupIndex } from "../utils/groupIndex";
 import { hcpAdapter } from "../state/explorerSlice";
 import type { HcpEntity } from "../../../domain/hcp";
+import {
+  matchesHcpSearch,
+  normalizeSearchQuery,
+} from "../utils/recordFiltering";
 
 export const selectExplorerState = (state: RootState) => state.explorer;
 const selectEdits = (state: RootState) => state.explorer.edits;
@@ -60,7 +64,7 @@ export const selectDisplayRows = createSelector(
   (groupIndex, entities, view, aggregates, edits): ExplorerDisplayRow[] => {
     const displayRows: ExplorerDisplayRow[] = [];
 
-    const normalizedQuery = view.searchQuery.trim().toLocaleLowerCase();
+    const normalizedQuery = normalizeSearchQuery(view.searchQuery);
 
     const isSearching = normalizedQuery.length > 0;
     const activeSort = view.sort;
@@ -167,15 +171,7 @@ export const selectDisplayRows = createSelector(
             continue;
           }
 
-          const matchesName = entity.name
-            .toLocaleLowerCase()
-            .includes(normalizedQuery);
-
-          const matchesId = entity.id
-            .toLocaleLowerCase()
-            .includes(normalizedQuery);
-
-          if (matchesName || matchesId) {
+          if (matchesHcpSearch(entity, normalizedQuery)) {
             matchingRecords.push(entity);
           }
         }
@@ -268,7 +264,7 @@ const selectRegionFilter = (state: RootState) =>
 export const selectMatchingHcpCount = createSelector(
   [selectAllHcps, selectSearchQuery, selectRegionFilter],
   (entities, searchQuery, regionFilter) => {
-    const normalizedQuery = searchQuery.trim().toLocaleLowerCase();
+    const normalizedQuery = normalizeSearchQuery(searchQuery);
 
     let count = 0;
 
@@ -277,11 +273,7 @@ export const selectMatchingHcpCount = createSelector(
         continue;
       }
 
-      if (
-        normalizedQuery &&
-        !entity.name.toLocaleLowerCase().includes(normalizedQuery) &&
-        !entity.id.toLocaleLowerCase().includes(normalizedQuery)
-      ) {
+      if (!matchesHcpSearch(entity, normalizedQuery)) {
         continue;
       }
 
