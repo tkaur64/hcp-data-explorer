@@ -4,6 +4,7 @@ import type { ExplorerDisplayRow } from "./displayRows";
 import { createRegionGroupRow, createTerritoryGroupRow } from "./displayRows";
 import { buildGroupIndex } from "./groupIndex";
 import { hcpAdapter } from "./explorerSlice";
+import type { HcpEntity } from "../../domain/hcp";
 
 export const selectExplorerState = (state: RootState) => state.explorer;
 
@@ -46,26 +47,92 @@ export const selectDisplayRows = createSelector(
   (groupIndex, entities, view): ExplorerDisplayRow[] => {
     const displayRows: ExplorerDisplayRow[] = [];
 
+    const normalizedQuery = view.searchQuery.trim().toLocaleLowerCase();
+
+    const isSearching = normalizedQuery.length > 0;
+
     const regions =
       view.regionFilter === null ? groupIndex.regions : [view.regionFilter];
 
     for (const region of regions) {
-      if (!groupIndex.territoriesByRegion[region]) {
+      const territories = groupIndex.territoriesByRegion[region];
+
+      if (!territories) {
+        continue;
+      }
+
+      const territoryBlocks: Array<{
+        territory: string;
+        matchingRecords: HcpEntity[];
+      }> = [];
+
+      for (const territory of territories) {
+        const rowKeys = groupIndex.rowKeysByTerritory[territory] ?? [];
+
+        if (!isSearching) {
+          territoryBlocks.push({
+            territory,
+            matchingRecords: [],
+          });
+
+          continue;
+        }
+
+        const matchingRecords: HcpEntity[] = [];
+
+        for (const rowKey of rowKeys) {
+          const entity = entities[rowKey];
+
+          if (!entity) {
+            continue;
+          }
+
+          const matchesName = entity.name
+            .toLocaleLowerCase()
+            .includes(normalizedQuery);
+
+          const matchesId = entity.id
+            .toLocaleLowerCase()
+            .includes(normalizedQuery);
+
+          if (matchesName || matchesId) {
+            matchingRecords.push(entity);
+          }
+        }
+
+        if (matchingRecords.length > 0) {
+          territoryBlocks.push({
+            territory,
+            matchingRecords,
+          });
+        }
+      }
+
+      if (isSearching && territoryBlocks.length === 0) {
         continue;
       }
 
       displayRows.push(createRegionGroupRow(region));
 
-      if (!view.expandedRegions[region]) {
+      const regionIsExpanded =
+        isSearching || Boolean(view.expandedRegions[region]);
+
+      if (!regionIsExpanded) {
         continue;
       }
 
-      const territories = groupIndex.territoriesByRegion[region];
-
-      for (const territory of territories) {
+      for (const { territory, matchingRecords } of territoryBlocks) {
         displayRows.push(createTerritoryGroupRow(region, territory));
 
-        if (!view.expandedTerritories[territory]) {
+        const territoryIsExpanded =
+          isSearching || Boolean(view.expandedTerritories[territory]);
+
+        if (!territoryIsExpanded) {
+          continue;
+        }
+
+        if (isSearching) {
+          displayRows.push(...matchingRecords);
           continue;
         }
 

@@ -1,6 +1,7 @@
 import "./App.css";
 import { useAppSelector } from "./app/hooks";
 import { ExplorerGrid } from "./features/explorer/components/ExplorerGrid";
+import { ExplorerToolbar } from "./features/explorer/components/ExplorerToolbar";
 import { selectExplorerSummary } from "./features/explorer/explorerSelectors";
 
 function App() {
@@ -22,7 +23,8 @@ function App() {
           </p>
         </div>
       </header>
-
+      <ExplorerToolbar />
+      <ExplorerGrid />
       <ExplorerGrid />
     </main>
   );
