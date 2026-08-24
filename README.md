@@ -10,30 +10,16 @@ The project uses AG Grid Community for row virtualization while implementing Reg
 - Virtualized rendering with AG Grid Community.
 - Region → Territory → HCP hierarchy.
 - Expandable Region and Territory groups.
-- Live Region and Territory aggregates:
-  - HCP count
-  - Calls
-  - TRx
-  - NRx
-  - CPI
-
-- Three-state sorting:
-  - Ascending
-  - Descending
-  - Original source order
-
+- Live Region and Territory aggregates for HCP count, Calls, TRx, NRx, and CPI.
+- Three-state sorting: ascending, descending, and original source order.
 - Case-insensitive search by provider name or HCP ID.
-- Region filtering.
-- Debounced search with live matching-HCP count.
+- Region filtering and debounced matching-HCP counts.
 - Inline Calls editing with asynchronous validation.
-- Pending, saved and rejected edit feedback.
-- Race-safe latest-request-wins behavior.
+- Pending, saved, rejected, and race-safe edit feedback.
 - Incremental aggregate updates after accepted edits.
 - Undo and Redo for accepted Calls edits.
-- Runtime tenant-theme switching.
-- Per-field validation and fallback for untrusted theme configuration.
+- Runtime tenant-theme switching with per-field fallback validation.
 - Responsive layouts and accessible native controls.
-- Jest and React Testing Library coverage for business logic, state transitions and editing interactions.
 
 ## Technology
 
@@ -47,6 +33,12 @@ The project uses AG Grid Community for row virtualization while implementing Reg
 - Jest
 - React Testing Library
 - Babel
+
+No AG Grid Enterprise functionality is used.
+
+## Submission notes
+
+Approximate time spent: **2 working days**, including implementation, testing, performance validation, and documentation.
 
 No AG Grid Enterprise functionality is used.
 
@@ -109,12 +101,12 @@ Current coverage:
 
 | Metric     | Coverage | Enforced threshold |
 | ---------- | -------: | -----------------: |
-| Statements |   61.30% |                60% |
-| Branches   |   48.50% |                45% |
-| Functions  |   47.44% |                45% |
-| Lines      |   60.86% |                60% |
+| Statements |   60.90% |                60% |
+| Branches   |   49.62% |                45% |
+| Functions  |   47.18% |                45% |
+| Lines      |   60.46% |                60% |
 
-The test suite currently contains 29 tests across seven suites.
+The test suite currently contains 32 tests across eight suites.
 
 The explorer grid is loaded lazily so the application shell can render before the AG Grid bundle is downloaded.
 
@@ -317,10 +309,18 @@ The application is designed around the 50,000-record requirement:
 - Group membership is indexed in one pass.
 - Selectors are memoized.
 - Search is debounced.
+- The footer reports the currently rendered `.ag-row` count and the most recent grid-model operation time.
 - Collapsed Territory records are not copied into the display-row array.
 - Aggregates use incremental deltas after edits.
 - Undo and Redo store compact commands rather than state snapshots.
 - Row animation is disabled to avoid unnecessary work during large sorting changes.
+
+Representative local measurements:
+
+- Initial JavaScript bundle after lazy-loading the grid: 291.92 kB, 91.22 kB gzip.
+- Deferred AG Grid chunk: 1,117.43 kB, 310.98 kB gzip.
+- Typical visible DOM count: approximately 21 rows at the captured desktop viewport.
+- Typical grid-model operation time: approximately 3 ms at the captured desktop viewport.
 
 ## Data-quality observations
 
@@ -372,7 +372,7 @@ The supplied random validator is mocked at the component boundary. Redux state t
 
 ## FR-5 bulk-edit design
 
-Bulk editing is intentionally documented as a design extension rather than implemented in the current UI. The existing stable `rowKey` and command-history model are the foundation for it.
+Bulk editing is intentionally documented as a design extension rather than implemented in the current UI. This is consistent with the assignment treating FR-5 as a design requirement. The existing stable `rowKey` and command-history model are the foundation for it.
 
 The additional state would be:
 
@@ -459,6 +459,13 @@ src/
 - The validator is a supplied client-side mock rather than a persistent backend.
 - Grouping is intentionally implemented in application code because AG Grid Community does not provide Enterprise row grouping.
 - Aggregate values represent the complete underlying group, not only the current search matches. Search controls row visibility but does not redefine aggregate meaning.
+
+## What I would do differently with more time
+
+- Implement the FR-5 bulk-selection and partial-validation workflow in working code, using the documented operation and command models.
+- Add automated accessibility assertions for the grid footer, keyboard focus, live validation messages, and group controls.
+- Profile scrolling and selector execution with browser performance traces across several viewport sizes.
+- Split the deferred AG Grid chunk further if the application needed a faster first interaction on constrained networks.
 
 ## Reviewer walkthrough
 
