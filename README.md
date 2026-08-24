@@ -341,7 +341,7 @@ Existing source values above the validator cap are retained as legacy source dat
 
 CPI is undefined when TRx is zero and is displayed as `-`.
 
-See [DATA_QUALITY.md](./DATA_QUALITY.md) for the full audit and handling decisions.
+See [ASSUMPTIONS.md](./ASSUMPTIONS.md) for the full audit and handling decisions.
 
 ## Testing strategy
 
@@ -370,43 +370,88 @@ Tests focus on behavior with the highest regression risk:
 
 The supplied random validator is mocked at the component boundary. Redux state transitions are tested deterministically by dispatching pending, fulfilled and rejected thunk actions directly.
 
+## FR-5 bulk-edit design
+
+Bulk editing is intentionally documented as a design extension rather than implemented in the current UI. The existing stable `rowKey` and command-history model are the foundation for it.
+
+The additional state would be:
+
+```ts
+interface BulkOperation {
+  operationId: string;
+  rowKeys: HcpRowKey[];
+  status: "pending" | "settled";
+  results: Partial<
+    Record<
+      HcpRowKey,
+      {
+        status: "pending" | "applied" | "rejected";
+        previousValue: number | null;
+        nextValue: number;
+        error?: string;
+      }
+    >
+  >;
+  appliedCount: number;
+  rejectedCount: number;
+}
+```
+
+Selection would remain in Redux and support both individual HCP rows and whole Territory groups. Selecting a Territory resolves to the stable row keys in `rowKeysByTerritory`; it does not store a second copy of the records.
+
+The `+10% Calls` event flow would be:
+
+1. Resolve selected HCP row keys and calculate each next whole-number Calls value from its accepted value.
+2. Create one `BulkOperation` with every target marked pending.
+3. Start one `validateCalls()` promise per row concurrently.
+4. Apply each fulfilled result independently, updating only that row's accepted overlay and its Region/Territory aggregate deltas.
+5. Store each rejection reason without changing that row's aggregate or history.
+6. When all promises settle, show `N applied, M rejected` and retain the operation result for exactly one undo command.
+
+Rows already pending from another edit are excluded from the operation and reported as rejected with a local `already pending` reason. A failed validation never contributes to the applied subset.
+
+## FR-6 undo-at-scale design
+
+The bulk operation would be represented by one history command containing only the applied entries:
+
+```ts
+interface BulkEditCommand {
+  commandId: string;
+  operationId: string;
+  entries: Array<{
+    rowKey: HcpRowKey;
+    previousValue: number | null;
+    nextValue: number;
+  }>;
+}
+```
+
+Undo would apply all entries as one transaction: update the accepted overlays, adjust each affected Region and Territory by its delta, move the command from `past` to `future`, and restore the prior selection state. It would not call the validator again because the command represents already accepted values. Redo would replay the same accepted values without revalidation.
+
+If an affected row is inside a collapsed group, undo first marks its Region and Territory expanded, then asks the grid API to ensure the row is visible and focused. If the row is excluded by the active search or Region filter, the command still applies; the UI reports the result and offers a `clear filters` action rather than changing the user's filter unexpectedly.
+
+While a bulk operation is pending, undo and redo are disabled. Late responses are ignored using the operation ID and per-row request IDs, so a stale response cannot enter the applied subset after settlement.
+
 ## Project structure
 
 ```text
 src/
-├── app/
-│   ├── hooks.ts
-│   └── store.ts
-├── domain/
-│   └── hcp.ts
-├── features/
-│   └── explorer/
-│       ├── components/
-│       ├── buildAggregates.ts
-│       ├── callsEditing.ts
-│       ├── callsValues.ts
-│       ├── displayRows.ts
-│       ├── explorerSelectors.ts
-│       ├── explorerSlice.ts
-│       ├── explorerTypes.ts
-│       ├── groupIndex.ts
-│       └── sorting.ts
-├── provided/
-│   ├── data-generator.ts
-│   ├── mock-validator.ts
-│   └── theme-config.ts
-├── test/
-│   └── setupTests.ts
-├── theme/
-│   └── resolveTenantTheme.ts
-├── App.tsx
-└── main.tsx
+├── app/                      # Bootstrap, Redux store and global styles
+├── domain/                   # HCP entities and domain calculations
+├── features/explorer/
+│   ├── components/           # Grid, toolbar and cell components
+│   ├── selectors/            # Derived explorer state
+│   ├── state/                # Redux slice and state types
+│   ├── tests/                # Explorer tests
+│   └── utils/                # Aggregation, grouping, sorting and editing
+├── infrastructure/provided/  # Supplied black-box starter files
+├── theme/                    # Runtime theme validation
+└── test/                     # Shared test setup
 ```
 
 ## Additional documentation
 
 - [ASSUMPTIONS.md](./ASSUMPTIONS.md)
-- [DATA_QUALITY.md](./DATA_QUALITY.md)
 
 ## Known limitations
 

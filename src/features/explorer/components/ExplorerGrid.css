@@ -1,12 +1,40 @@
 .explorer-grid {
+  display: flex;
+  flex-direction: column;
   width: 100%;
-  height: calc(100vh - 285px);
-  min-height: 500px;
+  height: calc(100vh - 315px);
+  min-height: 360px;
   overflow: hidden;
   border: 1px solid #d9e1e8;
   border-radius: 10px;
   background: #ffffff;
   box-shadow: 0 8px 24px rgb(15 35 55 / 8%);
+}
+
+.explorer-grid__table {
+  min-height: 0;
+  flex: 1;
+}
+
+.explorer-grid__footer {
+  min-height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 0 12px;
+  border-top: 1px solid #d9e1e8;
+  color: #64748b;
+  background: #ffffff;
+  font-size: 0.75rem;
+  font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 760px) {
+  .explorer-grid {
+    height: calc(100vh - 500px);
+    min-height: 260px;
+  }
 }
 
 .explorer-grid .explorer-row--region {

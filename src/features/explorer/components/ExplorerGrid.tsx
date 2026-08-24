@@ -1,4 +1,10 @@
-import { useMemo } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import {
   AllCommunityModule,
   themeQuartz,
@@ -50,6 +56,31 @@ export function ExplorerGrid({
   tenantTheme,
 }: ExplorerGridProps) {
   const displayRows = useAppSelector(selectDisplayRows);
+  const gridRef = useRef<HTMLDivElement>(null);
+  const operationStartedAt = useRef<number | null>(null);
+  const [domRowCount, setDomRowCount] = useState(0);
+  const [lastOperationMs, setLastOperationMs] = useState(0);
+
+  useEffect(() => {
+    operationStartedAt.current = performance.now();
+  }, [displayRows]);
+
+  const measureGrid = useCallback(() => {
+    const gridElement = gridRef.current;
+
+    if (!gridElement) {
+      return;
+    }
+
+    setDomRowCount(gridElement.querySelectorAll(".ag-row").length);
+
+    if (operationStartedAt.current !== null) {
+      setLastOperationMs(
+        Math.round(performance.now() - operationStartedAt.current),
+      );
+      operationStartedAt.current = null;
+    }
+  }, []);
 
   const gridTheme = useMemo(
     () =>
@@ -285,24 +316,34 @@ export function ExplorerGrid({
       className="explorer-grid"
       aria-label="HCP data explorer grid"
     >
-      <AgGridProvider modules={communityModules}>
-        <AgGridReact<ExplorerDisplayRow>
-          theme={gridTheme}
-          rowData={displayRows}
-          columnDefs={columnDefs}
-          defaultColDef={defaultColDef}
-          getRowId={({ data }) => data.rowKey}
-          getRowClass={({ data }) =>
-            data
-              ? `explorer-row explorer-row--${data.rowType}`
-              : undefined
-          }
-          rowHeight={40}
-          headerHeight={44}
-          animateRows={false}
-          suppressDragLeaveHidesColumns
-        />
-      </AgGridProvider>
+      <div ref={gridRef} className="explorer-grid__table">
+        <AgGridProvider modules={communityModules}>
+          <AgGridReact<ExplorerDisplayRow>
+            theme={gridTheme}
+            rowData={displayRows}
+            columnDefs={columnDefs}
+            defaultColDef={defaultColDef}
+            getRowId={({ data }) => data.rowKey}
+            getRowClass={({ data }) =>
+              data
+                ? `explorer-row explorer-row--${data.rowType}`
+                : undefined
+            }
+            rowHeight={40}
+            headerHeight={44}
+            animateRows={false}
+            suppressDragLeaveHidesColumns
+            onFirstDataRendered={measureGrid}
+            onModelUpdated={measureGrid}
+            onBodyScroll={measureGrid}
+          />
+        </AgGridProvider>
+      </div>
+
+      <footer className="explorer-grid__footer">
+        <span>{domRowCount.toLocaleString()} rows in DOM</span>
+        <span>Last operation: {lastOperationMs} ms</span>
+      </footer>
     </section>
   );
 }
