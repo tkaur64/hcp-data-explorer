@@ -58,3 +58,8 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
+.group-metric {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}

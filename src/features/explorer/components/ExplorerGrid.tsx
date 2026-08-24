@@ -8,11 +8,15 @@ import {
   AgGridProvider,
   AgGridReact,
 } from "ag-grid-react";
-import { calculateCpi, toNumericCalls } from "../../../domain/hcp";
+import {
+  calculateCpi,
+  toNumericCalls,
+} from "../../../domain/hcp";
 import { useAppSelector } from "../../../app/hooks";
 import type { ExplorerDisplayRow } from "../displayRows";
 import { selectDisplayRows } from "../explorerSelectors";
 import { GroupLabelCell } from "./GroupLabelCell";
+import { GroupMetricCell } from "./GroupMetricCell";
 import "./ExplorerGrid.css";
 
 const communityModules = [AllCommunityModule];
@@ -34,15 +38,13 @@ export function ExplorerGrid() {
         colId: "provider",
         headerName: "Provider / Group",
         flex: 2,
-        width: 250,
         minWidth: 230,
         cellRenderer: GroupLabelCell,
       },
       {
         colId: "id",
-        flex: 1.15,
         headerName: "HCP ID",
-        width: 145,
+        flex: 1.15,
         minWidth: 135,
         valueGetter: ({ data }) =>
           data?.rowType === "hcp" ? data.id : "",
@@ -50,7 +52,6 @@ export function ExplorerGrid() {
       {
         colId: "specialty",
         headerName: "Specialty",
-        width: 155,
         flex: 1.2,
         minWidth: 145,
         valueGetter: ({ data }) =>
@@ -61,7 +62,6 @@ export function ExplorerGrid() {
       {
         colId: "region",
         headerName: "Region",
-        width: 125,
         flex: 0.9,
         minWidth: 110,
         valueGetter: ({ data }) =>
@@ -70,7 +70,6 @@ export function ExplorerGrid() {
       {
         colId: "territory",
         headerName: "Territory",
-        width: 155,
         flex: 1.2,
         minWidth: 150,
         valueGetter: ({ data }) =>
@@ -79,26 +78,57 @@ export function ExplorerGrid() {
             : "",
       },
       {
+        colId: "hcpCount",
+        headerName: "HCPs",
+        flex: 0.7,
+        minWidth: 85,
+        type: "numericColumn",
+        valueGetter: () => null,
+        cellRendererSelector: ({ data }) =>
+          data && data.rowType !== "hcp"
+            ? {
+              component: GroupMetricCell,
+              params: {
+                metric: "hcpCount",
+              },
+            }
+            : undefined,
+      },
+      {
         colId: "calls",
         headerName: "Calls",
-        width: 105,
         flex: 0.75,
         minWidth: 90,
         type: "numericColumn",
         valueGetter: ({ data }) => {
           if (data?.rowType !== "hcp") {
-            return "";
+            return null;
           }
 
           return toNumericCalls(data.calls);
         },
-        valueFormatter: ({ value }) =>
-          value === null ? "Invalid" : formatNumber(value),
+        valueFormatter: ({ data, value }) => {
+          if (data?.rowType !== "hcp") {
+            return "";
+          }
+
+          return value === null
+            ? "Invalid"
+            : formatNumber(value);
+        },
+        cellRendererSelector: ({ data }) =>
+          data && data.rowType !== "hcp"
+            ? {
+              component: GroupMetricCell,
+              params: {
+                metric: "calls",
+              },
+            }
+            : undefined,
       },
       {
         colId: "trx",
         headerName: "TRx",
-        width: 105,
         flex: 0.75,
         minWidth: 90,
         type: "numericColumn",
@@ -106,11 +136,19 @@ export function ExplorerGrid() {
           data?.rowType === "hcp" ? data.trx : null,
         valueFormatter: ({ value }) =>
           formatNumber(value),
+        cellRendererSelector: ({ data }) =>
+          data && data.rowType !== "hcp"
+            ? {
+              component: GroupMetricCell,
+              params: {
+                metric: "trx",
+              },
+            }
+            : undefined,
       },
       {
         colId: "nrx",
         headerName: "NRx",
-        width: 105,
         flex: 0.75,
         minWidth: 90,
         type: "numericColumn",
@@ -118,13 +156,21 @@ export function ExplorerGrid() {
           data?.rowType === "hcp" ? data.nrx : null,
         valueFormatter: ({ value }) =>
           formatNumber(value),
+        cellRendererSelector: ({ data }) =>
+          data && data.rowType !== "hcp"
+            ? {
+              component: GroupMetricCell,
+              params: {
+                metric: "nrx",
+              },
+            }
+            : undefined,
       },
       {
         colId: "cpi",
         headerName: "CPI",
-        width: 110,
         flex: 0.75,
-        minWidth: 90,
+        minWidth: 95,
         type: "numericColumn",
         valueGetter: ({ data }) =>
           data?.rowType === "hcp"
@@ -139,6 +185,15 @@ export function ExplorerGrid() {
             ? `${value.toFixed(2)}%`
             : "-";
         },
+        cellRendererSelector: ({ data }) =>
+          data && data.rowType !== "hcp"
+            ? {
+              component: GroupMetricCell,
+              params: {
+                metric: "cpi",
+              },
+            }
+            : undefined,
       },
     ],
     [],
