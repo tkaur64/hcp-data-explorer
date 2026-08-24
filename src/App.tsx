@@ -1,24 +1,36 @@
 import "./App.css";
-import { generateRows } from "./provided/data-generator";
+import { useAppSelector } from "./app/hooks";
 import {
-  auditRows,
-  createHcpEntities,
-} from "./domain/hcp";
-
-const rawRecords = generateRows(42, 50000);
-const hcpEntities = createHcpEntities(rawRecords);
-const dataQualityReport = auditRows(rawRecords);
+  selectExplorerSummary,
+  selectRegionNames,
+} from "./features/explorer/explorerSelectors";
 
 function App() {
+  const summary = useAppSelector(selectExplorerSummary);
+  const regions = useAppSelector(selectRegionNames);
+
   return (
     <main>
       <h1>HCP Data Explorer</h1>
 
-      <p>Generated entities: {hcpEntities.length.toLocaleString()}</p>
+      <h2>Redux state verification</h2>
 
-      <h2>Data-quality audit</h2>
+      <dl>
+        <dt>HCP records</dt>
+        <dd>{summary.totalRecords.toLocaleString()}</dd>
 
-      <pre>{JSON.stringify(dataQualityReport, null, 2)}</pre>
+        <dt>Regions</dt>
+        <dd>{summary.regionCount}</dd>
+
+        <dt>Territories</dt>
+        <dd>{summary.territoryCount}</dd>
+
+        <dt>Edited rows</dt>
+        <dd>{summary.editedRowCount}</dd>
+      </dl>
+
+      <h2>Regions</h2>
+      <p>{regions.join(", ")}</p>
     </main>
   );
 }
