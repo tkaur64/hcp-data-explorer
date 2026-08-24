@@ -23,7 +23,7 @@ export const hcpAdapter = createEntityAdapter<HcpEntity, HcpRowKey>({
 function replaceAggregateCalls(
   aggregate: Aggregate | undefined,
   previousValue: number | null,
-  nextValue: number,
+  nextValue: number | null,
 ): void {
   if (!aggregate) {
     return;
@@ -35,7 +35,11 @@ function replaceAggregateCalls(
     aggregate.calls -= previousValue;
   }
 
-  aggregate.calls += nextValue;
+  if (nextValue === null) {
+    aggregate.invalidCallsCount += 1;
+  } else {
+    aggregate.calls += nextValue;
+  }
 }
 
 const generatedRecords = createHcpEntities(generateRows(42, 50000));
@@ -136,6 +140,126 @@ const explorerSlice = createSlice({
 
     setTenantKey(state, action: PayloadAction<string>) {
       state.tenantKey = action.payload;
+    },
+    undoLastEdit(state) {
+      const hasPendingEdit = Object.values(state.edits).some(
+        (edit) => edit?.status === "pending",
+      );
+
+      if (hasPendingEdit) {
+        return;
+      }
+
+      const command = state.history.past[state.history.past.length - 1];
+
+      if (!command) {
+        return;
+      }
+
+      const entity = state.entities[command.rowKey];
+
+      if (!entity) {
+        return;
+      }
+
+      const currentValue =
+        state.edits[command.rowKey]?.acceptedValue ??
+        toNumericCalls(entity.calls);
+
+      const restoredValue = command.previousValue;
+
+      if (currentValue !== restoredValue) {
+        replaceAggregateCalls(
+          state.aggregates.regions[entity.region],
+          currentValue,
+          restoredValue,
+        );
+
+        const territoryKey = createTerritoryRowKey(
+          entity.region,
+          entity.territory,
+        );
+
+        replaceAggregateCalls(
+          state.aggregates.territories[territoryKey],
+          currentValue,
+          restoredValue,
+        );
+      }
+
+      const sourceValue = toNumericCalls(entity.calls);
+
+      if (restoredValue === null || restoredValue === sourceValue) {
+        delete state.edits[command.rowKey];
+      } else {
+        state.edits[command.rowKey] = {
+          acceptedValue: restoredValue,
+          status: "saved",
+        };
+      }
+
+      state.history.past.pop();
+      state.history.future.push(command);
+    },
+    redoLastEdit(state) {
+      const hasPendingEdit = Object.values(state.edits).some(
+        (edit) => edit?.status === "pending",
+      );
+
+      if (hasPendingEdit) {
+        return;
+      }
+
+      const command = state.history.future[state.history.future.length - 1];
+
+      if (!command) {
+        return;
+      }
+
+      const entity = state.entities[command.rowKey];
+
+      if (!entity) {
+        return;
+      }
+
+      const currentValue =
+        state.edits[command.rowKey]?.acceptedValue ??
+        toNumericCalls(entity.calls);
+
+      const restoredValue = command.nextValue;
+
+      if (currentValue !== restoredValue) {
+        replaceAggregateCalls(
+          state.aggregates.regions[entity.region],
+          currentValue,
+          restoredValue,
+        );
+
+        const territoryKey = createTerritoryRowKey(
+          entity.region,
+          entity.territory,
+        );
+
+        replaceAggregateCalls(
+          state.aggregates.territories[territoryKey],
+          currentValue,
+          restoredValue,
+        );
+      }
+
+      const sourceValue = toNumericCalls(entity.calls);
+
+      if (restoredValue === sourceValue) {
+        delete state.edits[command.rowKey];
+      } else {
+        state.edits[command.rowKey] = {
+          acceptedValue: restoredValue,
+          status: "saved",
+        };
+      }
+
+      state.history.future.pop();
+      state.history.past.push(command);
     },
   },
   extraReducers: (builder) => {
@@ -248,6 +372,8 @@ export const {
   toggleSelection,
   clearSelection,
   setTenantKey,
+  undoLastEdit,
+  redoLastEdit,
 } = explorerSlice.actions;
 
 export default explorerSlice.reducer;

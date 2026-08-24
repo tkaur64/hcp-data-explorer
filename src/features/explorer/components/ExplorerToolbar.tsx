@@ -11,8 +11,10 @@ import {
   selectRegionNames,
 } from "../explorerSelectors";
 import {
+  redoLastEdit,
   setRegionFilter,
   setSearchQuery,
+  undoLastEdit,
 } from "../explorerSlice";
 import "./ExplorerToolbar.css";
 
@@ -29,6 +31,23 @@ export function ExplorerToolbar() {
   const regionFilter = useAppSelector(
     (state) => state.explorer.view.regionFilter,
   );
+
+  const undoCount = useAppSelector(
+    (state) => state.explorer.history.past.length,
+  );
+
+  const redoCount = useAppSelector(
+    (state) => state.explorer.history.future.length,
+  );
+
+  const hasPendingEdit = useAppSelector((state) =>
+    Object.values(state.explorer.edits).some(
+      (edit) => edit?.status === "pending",
+    ),
+  );
+
+  const canUndo = undoCount > 0 && !hasPendingEdit;
+  const canRedo = redoCount > 0 && !hasPendingEdit;
 
   const [searchTerm, setSearchTerm] =
     useState(storedQuery);
@@ -99,7 +118,39 @@ export function ExplorerToolbar() {
           ))}
         </select>
       </label>
+      <div
+        className="toolbar-history"
+        role="group"
+        aria-label="Calls edit history"
+      >
+        <button
+          type="button"
+          disabled={!canUndo}
+          onClick={() => dispatch(undoLastEdit())}
+          aria-label={`Undo last Calls edit. ${undoCount} available`}
+          title={
+            hasPendingEdit
+              ? "Wait for Calls validation to finish"
+              : "Undo last accepted Calls edit"
+          }
+        >
+          ↶ Undo
+        </button>
 
+        <button
+          type="button"
+          disabled={!canRedo}
+          onClick={() => dispatch(redoLastEdit())}
+          aria-label={`Redo last Calls edit. ${redoCount} available`}
+          title={
+            hasPendingEdit
+              ? "Wait for Calls validation to finish"
+              : "Redo last undone Calls edit"
+          }
+        >
+          Redo ↷
+        </button>
+      </div>
       <p
         className="toolbar-result"
         aria-live="polite"
