@@ -6,6 +6,12 @@ import {
   createTerritoryGroupRow,
   createTerritoryRowKey,
 } from "./displayRows";
+import {
+  compareAggregateValues,
+  compareHcpRecords,
+  compareTextValues,
+  isNumericSortColumn,
+} from "./sorting";
 import { buildGroupIndex } from "./groupIndex";
 import { hcpAdapter } from "./explorerSlice";
 import type { HcpEntity } from "../../domain/hcp";
@@ -46,23 +52,90 @@ const selectEntities = (state: RootState) => state.explorer.entities;
 
 const selectView = (state: RootState) => state.explorer.view;
 
+const selectAggregates = (state: RootState) => state.explorer.aggregates;
+
 export const selectDisplayRows = createSelector(
-  [selectGroupIndex, selectEntities, selectView],
-  (groupIndex, entities, view): ExplorerDisplayRow[] => {
+  [selectGroupIndex, selectEntities, selectView, selectAggregates],
+  (groupIndex, entities, view, aggregates): ExplorerDisplayRow[] => {
     const displayRows: ExplorerDisplayRow[] = [];
 
     const normalizedQuery = view.searchQuery.trim().toLocaleLowerCase();
 
     const isSearching = normalizedQuery.length > 0;
+    const activeSort = view.sort;
 
     const regions =
-      view.regionFilter === null ? groupIndex.regions : [view.regionFilter];
+      view.regionFilter === null
+        ? [...groupIndex.regions]
+        : [view.regionFilter];
+
+    /*
+     * Numeric columns sort Region groups using their
+     * aggregate values. Region text sorting uses the
+     * Region name.
+     */
+    if (activeSort) {
+      if (isNumericSortColumn(activeSort.column)) {
+        regions.sort((first, second) => {
+          const aggregateComparison = compareAggregateValues(
+            aggregates.regions[first],
+            aggregates.regions[second],
+            activeSort.column,
+            activeSort.direction,
+          );
+
+          if (aggregateComparison !== 0) {
+            return aggregateComparison;
+          }
+
+          return compareTextValues(first, second, "asc");
+        });
+      } else if (activeSort.column === "region") {
+        regions.sort((first, second) =>
+          compareTextValues(first, second, activeSort.direction),
+        );
+      }
+    }
 
     for (const region of regions) {
-      const territories = groupIndex.territoriesByRegion[region];
+      const indexedTerritories = groupIndex.territoriesByRegion[region];
 
-      if (!territories) {
+      if (!indexedTerritories) {
         continue;
+      }
+
+      const territories = [...indexedTerritories];
+
+      /*
+       * Numeric columns sort Territory groups using their
+       * aggregate values. Territory text sorting uses the
+       * Territory name.
+       */
+      if (activeSort) {
+        if (isNumericSortColumn(activeSort.column)) {
+          territories.sort((first, second) => {
+            const firstKey = createTerritoryRowKey(region, first);
+
+            const secondKey = createTerritoryRowKey(region, second);
+
+            const aggregateComparison = compareAggregateValues(
+              aggregates.territories[firstKey],
+              aggregates.territories[secondKey],
+              activeSort.column,
+              activeSort.direction,
+            );
+
+            if (aggregateComparison !== 0) {
+              return aggregateComparison;
+            }
+
+            return compareTextValues(first, second, "asc");
+          });
+        } else if (activeSort.column === "territory") {
+          territories.sort((first, second) =>
+            compareTextValues(first, second, activeSort.direction),
+          );
+        }
       }
 
       const territoryBlocks: Array<{
@@ -74,6 +147,7 @@ export const selectDisplayRows = createSelector(
         const territoryKey = createTerritoryRowKey(region, territory);
 
         const rowKeys = groupIndex.rowKeysByTerritory[territoryKey] ?? [];
+
         if (!isSearching) {
           territoryBlocks.push({
             territory,
@@ -106,6 +180,12 @@ export const selectDisplayRows = createSelector(
         }
 
         if (matchingRecords.length > 0) {
+          if (activeSort) {
+            matchingRecords.sort((first, second) =>
+              compareHcpRecords(first, second, activeSort),
+            );
+          }
+
           territoryBlocks.push({
             territory,
             matchingRecords,
@@ -128,6 +208,7 @@ export const selectDisplayRows = createSelector(
 
       for (const { territory, matchingRecords } of territoryBlocks) {
         const territoryKey = createTerritoryRowKey(region, territory);
+
         displayRows.push(createTerritoryGroupRow(region, territory));
 
         const territoryIsExpanded =
@@ -143,13 +224,34 @@ export const selectDisplayRows = createSelector(
         }
 
         const rowKeys = groupIndex.rowKeysByTerritory[territoryKey] ?? [];
+
+        if (!activeSort) {
+          for (const rowKey of rowKeys) {
+            const entity = entities[rowKey];
+
+            if (entity) {
+              displayRows.push(entity);
+            }
+          }
+
+          continue;
+        }
+
+        const sortedRecords: HcpEntity[] = [];
+
         for (const rowKey of rowKeys) {
           const entity = entities[rowKey];
 
           if (entity) {
-            displayRows.push(entity);
+            sortedRecords.push(entity);
           }
         }
+
+        sortedRecords.sort((first, second) =>
+          compareHcpRecords(first, second, activeSort),
+        );
+
+        displayRows.push(...sortedRecords);
       }
     }
 
