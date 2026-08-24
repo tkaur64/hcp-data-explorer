@@ -3,6 +3,7 @@ import type { HcpRecord } from "../provided/data-generator";
 export type HcpRowKey = `hcp:${number}`;
 
 export interface HcpEntity extends HcpRecord {
+  rowType: "hcp";
   rowKey: HcpRowKey;
   sourceIndex: number;
 }
@@ -21,6 +22,7 @@ export interface DataQualityReport {
 export function createHcpEntities(records: HcpRecord[]): HcpEntity[] {
   return records.map((record, sourceIndex) => ({
     ...record,
+    rowType: "hcp",
     rowKey: `hcp:${sourceIndex}`,
     sourceIndex,
   }));
