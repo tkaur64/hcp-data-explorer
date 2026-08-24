@@ -17,6 +17,7 @@ import { hcpAdapter } from "./explorerSlice";
 import type { HcpEntity } from "../../domain/hcp";
 
 export const selectExplorerState = (state: RootState) => state.explorer;
+const selectEdits = (state: RootState) => state.explorer.edits;
 
 export const {
   selectAll: selectAllHcps,
@@ -55,8 +56,8 @@ const selectView = (state: RootState) => state.explorer.view;
 const selectAggregates = (state: RootState) => state.explorer.aggregates;
 
 export const selectDisplayRows = createSelector(
-  [selectGroupIndex, selectEntities, selectView, selectAggregates],
-  (groupIndex, entities, view, aggregates): ExplorerDisplayRow[] => {
+  [selectGroupIndex, selectEntities, selectView, selectAggregates, selectEdits],
+  (groupIndex, entities, view, aggregates, edits): ExplorerDisplayRow[] => {
     const displayRows: ExplorerDisplayRow[] = [];
 
     const normalizedQuery = view.searchQuery.trim().toLocaleLowerCase();
@@ -182,7 +183,7 @@ export const selectDisplayRows = createSelector(
         if (matchingRecords.length > 0) {
           if (activeSort) {
             matchingRecords.sort((first, second) =>
-              compareHcpRecords(first, second, activeSort),
+              compareHcpRecords(first, second, activeSort, edits),
             );
           }
 
@@ -248,7 +249,7 @@ export const selectDisplayRows = createSelector(
         }
 
         sortedRecords.sort((first, second) =>
-          compareHcpRecords(first, second, activeSort),
+          compareHcpRecords(first, second, activeSort, edits),
         );
 
         displayRows.push(...sortedRecords);

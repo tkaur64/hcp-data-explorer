@@ -5,17 +5,38 @@ import {
 } from "@reduxjs/toolkit";
 import {
   createHcpEntities,
+  toNumericCalls,
   type HcpEntity,
   type HcpRowKey,
 } from "../../domain/hcp";
+import { createTerritoryRowKey } from "./displayRows";
+import { submitCallsEdit } from "./callsEditing";
 import { generateRows } from "../../provided/data-generator";
 import { buildAggregates } from "./buildAggregates";
-import type { ExplorerState, SortColumn } from "./explorerTypes";
+import type { Aggregate, ExplorerState, SortColumn } from "./explorerTypes";
 import type { TerritoryRowKey } from "./displayRows";
 
 export const hcpAdapter = createEntityAdapter<HcpEntity, HcpRowKey>({
   selectId: (record) => record.rowKey,
 });
+
+function replaceAggregateCalls(
+  aggregate: Aggregate | undefined,
+  previousValue: number | null,
+  nextValue: number,
+): void {
+  if (!aggregate) {
+    return;
+  }
+
+  if (previousValue === null) {
+    aggregate.invalidCallsCount = Math.max(0, aggregate.invalidCallsCount - 1);
+  } else {
+    aggregate.calls -= previousValue;
+  }
+
+  aggregate.calls += nextValue;
+}
 
 const generatedRecords = createHcpEntities(generateRows(42, 50000));
 
@@ -116,6 +137,105 @@ const explorerSlice = createSlice({
     setTenantKey(state, action: PayloadAction<string>) {
       state.tenantKey = action.payload;
     },
+  },
+  extraReducers: (builder) => {
+    builder
+      .addCase(submitCallsEdit.pending, (state, action) => {
+        const { rowKey, newValue } = action.meta.arg;
+
+        if (!state.edits[rowKey]) {
+          state.edits[rowKey] = {
+            status: "pending",
+          };
+        }
+
+        const edit = state.edits[rowKey];
+
+        if (!edit) {
+          return;
+        }
+
+        edit.pendingValue = newValue;
+        edit.status = "pending";
+        edit.requestId = action.meta.requestId;
+
+        delete edit.error;
+      })
+
+      .addCase(submitCallsEdit.fulfilled, (state, action) => {
+        const { rowKey, newValue } = action.payload;
+        const edit = state.edits[rowKey];
+
+        /*
+         * A newer request may already be pending for this row.
+         * Ignore responses belonging to older requests.
+         */
+        if (!edit || edit.requestId !== action.meta.requestId) {
+          return;
+        }
+
+        const entity = state.entities[rowKey];
+
+        if (!entity) {
+          return;
+        }
+
+        const previousValue =
+          edit.acceptedValue ?? toNumericCalls(entity.calls);
+
+        if (previousValue !== newValue) {
+          replaceAggregateCalls(
+            state.aggregates.regions[entity.region],
+            previousValue,
+            newValue,
+          );
+
+          const territoryKey = createTerritoryRowKey(
+            entity.region,
+            entity.territory,
+          );
+
+          replaceAggregateCalls(
+            state.aggregates.territories[territoryKey],
+            previousValue,
+            newValue,
+          );
+
+          state.history.past.push({
+            commandId: action.meta.requestId,
+            rowKey,
+            previousValue,
+            nextValue: newValue,
+          });
+
+          state.history.future = [];
+        }
+
+        edit.acceptedValue = newValue;
+        edit.status = "saved";
+
+        delete edit.pendingValue;
+        delete edit.requestId;
+        delete edit.error;
+      })
+
+      .addCase(submitCallsEdit.rejected, (state, action) => {
+        const { rowKey } = action.meta.arg;
+        const edit = state.edits[rowKey];
+
+        /*
+         * Ignore stale failures as well as stale successes.
+         */
+        if (!edit || edit.requestId !== action.meta.requestId) {
+          return;
+        }
+
+        edit.status = "rejected";
+        edit.error = action.payload ?? "Calls validation failed";
+
+        delete edit.pendingValue;
+        delete edit.requestId;
+      });
   },
 });
 

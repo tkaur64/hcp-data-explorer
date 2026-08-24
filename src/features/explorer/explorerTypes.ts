@@ -42,7 +42,7 @@ export interface CallsEditState {
 export interface EditCommand {
   commandId: string;
   rowKey: HcpRowKey;
-  previousValue: number;
+  previousValue: number | null;
   nextValue: number;
 }
 

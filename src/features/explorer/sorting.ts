@@ -1,10 +1,15 @@
-import { calculateCpi, toNumericCalls, type HcpEntity } from "../../domain/hcp";
+import { calculateCpi, type HcpEntity } from "../../domain/hcp";
 import type {
   Aggregate,
   SortColumn,
   SortDirection,
   SortState,
 } from "./explorerTypes";
+import type { HcpRowKey } from "../../domain/hcp";
+import { getAcceptedCalls } from "./callsValues";
+import type { CallsEditState } from "./explorerTypes";
+
+type CallsEdits = Partial<Record<HcpRowKey, CallsEditState>>;
 
 const textCollator = new Intl.Collator(undefined, {
   sensitivity: "base",
@@ -120,6 +125,7 @@ export function compareHcpRecords(
   first: HcpEntity,
   second: HcpEntity,
   sort: SortState,
+  edits: CallsEdits,
 ): number {
   let result = 0;
 
@@ -154,8 +160,8 @@ export function compareHcpRecords(
 
     case "calls":
       result = compareNumberValues(
-        toNumericCalls(first.calls),
-        toNumericCalls(second.calls),
+        getAcceptedCalls(first, edits[first.rowKey]),
+        getAcceptedCalls(second, edits[second.rowKey]),
         sort.direction,
       );
       break;
@@ -168,13 +174,19 @@ export function compareHcpRecords(
       result = compareNumberValues(first.nrx, second.nrx, sort.direction);
       break;
 
-    case "cpi":
+    case "cpi": {
+      const firstCalls = getAcceptedCalls(first, edits[first.rowKey]);
+
+      const secondCalls = getAcceptedCalls(second, edits[second.rowKey]);
+
       result = compareNumberValues(
-        calculateCpi(first.calls, first.trx),
-        calculateCpi(second.calls, second.trx),
+        firstCalls === null ? null : calculateCpi(firstCalls, first.trx),
+        secondCalls === null ? null : calculateCpi(secondCalls, second.trx),
         sort.direction,
       );
+
       break;
+    }
 
     case "hcpCount":
       // HCP count only applies to group rows.

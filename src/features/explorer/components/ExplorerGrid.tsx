@@ -18,7 +18,10 @@ import { selectDisplayRows } from "../explorerSelectors";
 import { GroupLabelCell } from "./GroupLabelCell";
 import { GroupMetricCell } from "./GroupMetricCell";
 import { SortableHeader } from "../SortableHeader";
+import { CallsCell } from "./CallsCell";
+import { CpiCell } from "./CpiCell";
 import type { SortColumn } from "../explorerTypes";
+
 import "./ExplorerGrid.css";
 
 const communityModules = [AllCommunityModule];
@@ -116,7 +119,7 @@ export function ExplorerGrid() {
         ...sortableHeader("calls"),
         headerName: "Calls",
         flex: 0.75,
-        minWidth: 90,
+        minWidth: 120,
         type: "numericColumn",
         valueGetter: ({ data }) => {
           if (data?.rowType !== "hcp") {
@@ -134,15 +137,24 @@ export function ExplorerGrid() {
             ? "Invalid"
             : formatNumber(value);
         },
-        cellRendererSelector: ({ data }) =>
-          data && data.rowType !== "hcp"
-            ? {
-              component: GroupMetricCell,
-              params: {
-                metric: "calls",
-              },
-            }
-            : undefined,
+        cellRendererSelector: ({ data }) => {
+          if (!data) {
+            return undefined;
+          }
+
+          if (data.rowType === "hcp") {
+            return {
+              component: CallsCell,
+            };
+          }
+
+          return {
+            component: GroupMetricCell,
+            params: {
+              metric: "calls",
+            },
+          };
+        },
       },
       {
         colId: "trx",
@@ -207,15 +219,24 @@ export function ExplorerGrid() {
             ? `${value.toFixed(2)}%`
             : "-";
         },
-        cellRendererSelector: ({ data }) =>
-          data && data.rowType !== "hcp"
-            ? {
-              component: GroupMetricCell,
-              params: {
-                metric: "cpi",
-              },
-            }
-            : undefined,
+        cellRendererSelector: ({ data }) => {
+          if (!data) {
+            return undefined;
+          }
+
+          if (data.rowType === "hcp") {
+            return {
+              component: CpiCell,
+            };
+          }
+
+          return {
+            component: GroupMetricCell,
+            params: {
+              metric: "cpi",
+            },
+          };
+        },
       },
     ],
     [],
