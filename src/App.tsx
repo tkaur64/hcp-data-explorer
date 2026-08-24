@@ -3,11 +3,13 @@ import { useAppSelector } from "./app/hooks";
 import {
   selectExplorerSummary,
   selectRegionNames,
+  selectDisplayRows
 } from "./features/explorer/explorerSelectors";
 
 function App() {
   const summary = useAppSelector(selectExplorerSummary);
   const regions = useAppSelector(selectRegionNames);
+  const displayRows = useAppSelector(selectDisplayRows);
 
   return (
     <main>
@@ -31,6 +33,17 @@ function App() {
 
       <h2>Regions</h2>
       <p>{regions.join(", ")}</p>
+      <h2>Initial grouped display</h2>
+
+      <p>Rows passed to the grid: {displayRows.length}</p>
+
+      <ul>
+        {displayRows.slice(0, 12).map((row) => (
+          <li key={row.rowKey}>
+            {row.rowType}: {row.rowKey}
+          </li>
+        ))}
+      </ul>
     </main>
   );
 }
