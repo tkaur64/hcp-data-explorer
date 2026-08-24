@@ -204,3 +204,40 @@
     opacity: 0;
   }
 }
+
+.explorer-grid {
+  border-radius: var(--tenant-radius, 8px);
+  background: var(--tenant-background, #ffffff);
+}
+
+.explorer-row--region .ag-cell,
+.explorer-row--territory .ag-cell {
+  background: var(--tenant-surface, #f2f5f8);
+  color: var(--tenant-text, #16202e);
+}
+
+.sortable-header--active .sortable-header__icon {
+  color: var(--tenant-primary, #0b5fa5);
+}
+
+.calls-cell__input {
+  border-radius: var(--tenant-radius, 4px);
+  background: var(--tenant-background, #ffffff);
+  color: var(--tenant-text, #16202e);
+}
+
+.calls-cell__input:focus {
+  border-color: var(--tenant-primary, #0b5fa5);
+  outline-color: var(--tenant-primary, #0b5fa5);
+}
+
+.calls-cell__save {
+  border-color: var(--tenant-primary, #0b5fa5);
+  border-radius: var(--tenant-radius, 4px);
+  background: var(--tenant-surface, #f2f5f8);
+  color: var(--tenant-primary, #0b5fa5);
+}
+
+.calls-cell__indicator {
+  color: var(--tenant-primary, #0b5fa5);
+}

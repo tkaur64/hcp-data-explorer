@@ -14,6 +14,7 @@ import {
 } from "../../../domain/hcp";
 import { useAppSelector } from "../../../app/hooks";
 import type { ExplorerDisplayRow } from "../displayRows";
+import type { TenantTheme } from "../../../provided/theme-config";
 import { selectDisplayRows } from "../explorerSelectors";
 import { GroupLabelCell } from "./GroupLabelCell";
 import { GroupMetricCell } from "./GroupMetricCell";
@@ -25,6 +26,10 @@ import type { SortColumn } from "../explorerTypes";
 import "./ExplorerGrid.css";
 
 const communityModules = [AllCommunityModule];
+
+interface ExplorerGridProps {
+  tenantTheme: TenantTheme;
+}
 
 function sortableHeader(sortColumn: SortColumn) {
   return {
@@ -41,8 +46,30 @@ function formatNumber(value: unknown): string {
     : "";
 }
 
-export function ExplorerGrid() {
+export function ExplorerGrid({
+  tenantTheme,
+}: ExplorerGridProps) {
   const displayRows = useAppSelector(selectDisplayRows);
+
+  const gridTheme = useMemo(
+    () =>
+      themeQuartz.withParams({
+        accentColor: tenantTheme.primary,
+        backgroundColor: tenantTheme.background,
+        foregroundColor: tenantTheme.text,
+        textColor: tenantTheme.text,
+        chromeBackgroundColor: tenantTheme.surface,
+        headerTextColor: tenantTheme.text,
+        borderRadius: tenantTheme.radius,
+      }),
+    [
+      tenantTheme.primary,
+      tenantTheme.background,
+      tenantTheme.surface,
+      tenantTheme.text,
+      tenantTheme.radius,
+    ],
+  );
 
   const columnDefs = useMemo<
     ColDef<ExplorerDisplayRow>[]
@@ -260,7 +287,7 @@ export function ExplorerGrid() {
     >
       <AgGridProvider modules={communityModules}>
         <AgGridReact<ExplorerDisplayRow>
-          theme={themeQuartz}
+          theme={gridTheme}
           rowData={displayRows}
           columnDefs={columnDefs}
           defaultColDef={defaultColDef}
