@@ -1,6 +1,6 @@
 import { describe, expect, test } from "@jest/globals";
 
-import { DEFAULT_THEME } from "../provided/theme-config";
+import { DEFAULT_THEME } from "../infrastructure/provided/theme-config";
 import { resolveTenantTheme } from "./resolveTenantTheme";
 
 describe("resolveTenantTheme", () => {

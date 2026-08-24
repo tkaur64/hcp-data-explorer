@@ -1,7 +1,7 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 
-import type { HcpRowKey } from "../../domain/hcp";
-import { validateCalls } from "../../provided/mock-validator";
+import type { HcpRowKey } from "../../../domain/hcp";
+import { validateCalls } from "../../../infrastructure/provided/mock-validator";
 
 export interface SubmitCallsEditArgs {
   rowKey: HcpRowKey;

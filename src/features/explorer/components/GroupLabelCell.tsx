@@ -1,10 +1,10 @@
 import type { CustomCellRendererProps } from "ag-grid-react";
 import { useAppDispatch, useAppSelector } from "../../../app/hooks";
-import type { ExplorerDisplayRow } from "../displayRows";
+import type { ExplorerDisplayRow } from "../utils/displayRows";
 import {
   toggleRegion,
   toggleTerritory,
-} from "../explorerSlice";
+} from "../state/explorerSlice";
 
 export function GroupLabelCell({
   data,

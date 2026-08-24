@@ -4,7 +4,7 @@ import {
   DEFAULT_THEME,
   TENANT_THEMES,
   type TenantTheme,
-} from "../provided/theme-config";
+} from "../infrastructure/provided/theme-config";
 
 const appNameSchema = z.string().trim().min(1).max(80);
 

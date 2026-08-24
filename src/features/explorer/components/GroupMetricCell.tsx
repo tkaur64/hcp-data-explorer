@@ -1,7 +1,7 @@
 import type { CustomCellRendererProps } from "ag-grid-react";
 import { calculateCpi } from "../../../domain/hcp";
 import { useAppSelector } from "../../../app/hooks";
-import type { ExplorerDisplayRow } from "../displayRows";
+import type { ExplorerDisplayRow } from "../utils/displayRows";
 
 export type GroupMetric =
   | "calls"

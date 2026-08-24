@@ -1,20 +1,16 @@
-import {
-  useEffect,
-  useState,
-  type KeyboardEvent,
-} from "react";
+import { useState, type KeyboardEvent } from "react";
 import type { CustomCellRendererProps } from "ag-grid-react";
 
 import { useAppDispatch, useAppSelector } from "../../../app/hooks";
-import type { ExplorerDisplayRow } from "../displayRows";
-import { submitCallsEdit } from "../callsEditing";
-import { getDisplayedCalls } from "../callsValues";
+import type { HcpEntity } from "../../../domain/hcp";
+import type { ExplorerDisplayRow } from "../utils/displayRows";
+import { submitCallsEdit } from "../utils/callsEditing";
+import { getDisplayedCalls } from "../utils/callsValues";
+import type { CallsEditState } from "../state/explorerTypes";
 
 export function CallsCell({
   data,
 }: CustomCellRendererProps<ExplorerDisplayRow>) {
-  const dispatch = useAppDispatch();
-
   const rowKey =
     data?.rowType === "hcp"
       ? data.rowKey
@@ -36,19 +32,41 @@ export function CallsCell({
       ? ""
       : String(displayedValue);
 
+  if (!data || data.rowType !== "hcp") {
+    return null;
+  }
+
+  return (
+    <CallsCellEditor
+      key={`${data.rowKey}:${displayedText}:${edit?.status ?? ""}:${edit?.error ?? ""}`}
+      data={data}
+      edit={edit}
+      displayedValue={displayedValue}
+      displayedText={displayedText}
+    />
+  );
+}
+
+interface CallsCellEditorProps {
+  data: HcpEntity;
+  edit: CallsEditState | undefined;
+  displayedValue: number | null;
+  displayedText: string;
+}
+
+function CallsCellEditor({
+  data,
+  edit,
+  displayedValue,
+  displayedText,
+}: CallsCellEditorProps) {
+  const dispatch = useAppDispatch();
+
   const [draft, setDraft] =
     useState(displayedText);
 
   const [localError, setLocalError] =
     useState<string | null>(null);
-
-  useEffect(() => {
-    setDraft(displayedText);
-  }, [displayedText]);
-
-  if (!data || data.rowType !== "hcp") {
-    return null;
-  }
 
   const hasDraftChange = draft !== displayedText;
 

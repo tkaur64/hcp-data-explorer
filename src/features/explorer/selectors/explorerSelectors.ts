@@ -1,20 +1,20 @@
 import { createSelector } from "@reduxjs/toolkit";
-import type { RootState } from "../../app/store";
-import type { ExplorerDisplayRow } from "./displayRows";
+import type { RootState } from "../../../app/store";
+import type { ExplorerDisplayRow } from "../utils/displayRows";
 import {
   createRegionGroupRow,
   createTerritoryGroupRow,
   createTerritoryRowKey,
-} from "./displayRows";
+} from "../utils/displayRows";
 import {
   compareAggregateValues,
   compareHcpRecords,
   compareTextValues,
   isNumericSortColumn,
-} from "./sorting";
-import { buildGroupIndex } from "./groupIndex";
-import { hcpAdapter } from "./explorerSlice";
-import type { HcpEntity } from "../../domain/hcp";
+} from "../utils/sorting";
+import { buildGroupIndex } from "../utils/groupIndex";
+import { hcpAdapter } from "../state/explorerSlice";
+import type { HcpEntity } from "../../../domain/hcp";
 
 export const selectExplorerState = (state: RootState) => state.explorer;
 const selectEdits = (state: RootState) => state.explorer.edits;

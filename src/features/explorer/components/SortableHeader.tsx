@@ -1,9 +1,9 @@
 import type { CustomHeaderProps } from "ag-grid-react";
 
-import { useAppDispatch, useAppSelector } from "../../app/hooks";
-import type { ExplorerDisplayRow } from "./displayRows";
-import { cycleSort } from "./explorerSlice";
-import type { SortColumn } from "./explorerTypes";
+import { useAppDispatch, useAppSelector } from "../../../app/hooks";
+import type { ExplorerDisplayRow } from "../utils/displayRows";
+import { cycleSort } from "../state/explorerSlice";
+import type { SortColumn } from "../state/explorerTypes";
 
 type SortableHeaderProps = CustomHeaderProps<ExplorerDisplayRow> & {
   sortColumn: SortColumn;

@@ -1,13 +1,13 @@
-import { calculateCpi, type HcpEntity } from "../../domain/hcp";
+import { calculateCpi, type HcpEntity } from "../../../domain/hcp";
 import type {
   Aggregate,
   SortColumn,
   SortDirection,
   SortState,
-} from "./explorerTypes";
-import type { HcpRowKey } from "../../domain/hcp";
+} from "../state/explorerTypes";
+import type { HcpRowKey } from "../../../domain/hcp";
 import { getAcceptedCalls } from "./callsValues";
-import type { CallsEditState } from "./explorerTypes";
+import type { CallsEditState } from "../state/explorerTypes";
 
 type CallsEdits = Partial<Record<HcpRowKey, CallsEditState>>;
 

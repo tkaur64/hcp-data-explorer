@@ -1,8 +1,8 @@
 import { describe, expect, test } from "@jest/globals";
 
-import type { HcpEntity } from "../../domain/hcp";
-import { compareHcpRecords } from "./sorting";
-import type { CallsEditState, SortState } from "./explorerTypes";
+import type { HcpEntity } from "../../../domain/hcp";
+import { compareHcpRecords } from "../utils/sorting";
+import type { CallsEditState, SortState } from "../state/explorerTypes";
 
 function createEntity(
   sourceIndex: number,

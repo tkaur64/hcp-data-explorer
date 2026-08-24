@@ -2,8 +2,8 @@ import type { CustomCellRendererProps } from "ag-grid-react";
 
 import { useAppSelector } from "../../../app/hooks";
 import { calculateCpi } from "../../../domain/hcp";
-import type { ExplorerDisplayRow } from "../displayRows";
-import { getAcceptedCalls } from "../callsValues";
+import type { ExplorerDisplayRow } from "../utils/displayRows";
+import { getAcceptedCalls } from "../utils/callsValues";
 
 export function CpiCell({
   data,

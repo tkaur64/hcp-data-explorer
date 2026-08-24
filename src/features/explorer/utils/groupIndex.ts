@@ -1,4 +1,4 @@
-import type { HcpEntity, HcpRowKey } from "../../domain/hcp";
+import type { HcpEntity, HcpRowKey } from "../../../domain/hcp";
 import { createTerritoryRowKey, type TerritoryRowKey } from "./displayRows";
 
 export interface ExplorerGroupIndex {

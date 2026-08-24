@@ -1,6 +1,6 @@
-import { toNumericCalls } from "../../domain/hcp";
-import type { HcpEntity } from "../../domain/hcp";
-import type { Aggregate, ExplorerAggregates } from "./explorerTypes";
+import { toNumericCalls } from "../../../domain/hcp";
+import type { HcpEntity } from "../../../domain/hcp";
+import type { Aggregate, ExplorerAggregates } from "../state/explorerTypes";
 import { createTerritoryRowKey } from "./displayRows";
 
 function createEmptyAggregate(): Aggregate {

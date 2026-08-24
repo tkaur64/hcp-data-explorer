@@ -13,15 +13,15 @@ import {
   toNumericCalls,
 } from "../../../domain/hcp";
 import { useAppSelector } from "../../../app/hooks";
-import type { ExplorerDisplayRow } from "../displayRows";
-import type { TenantTheme } from "../../../provided/theme-config";
-import { selectDisplayRows } from "../explorerSelectors";
+import type { ExplorerDisplayRow } from "../utils/displayRows";
+import type { TenantTheme } from "../../../infrastructure/provided/theme-config";
+import { selectDisplayRows } from "../selectors/explorerSelectors";
 import { GroupLabelCell } from "./GroupLabelCell";
 import { GroupMetricCell } from "./GroupMetricCell";
-import { SortableHeader } from "../SortableHeader";
+import { SortableHeader } from "./SortableHeader";
 import { CallsCell } from "./CallsCell";
 import { CpiCell } from "./CpiCell";
-import type { SortColumn } from "../explorerTypes";
+import type { SortColumn } from "../state/explorerTypes";
 
 import "./ExplorerGrid.css";
 

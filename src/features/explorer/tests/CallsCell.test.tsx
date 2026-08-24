@@ -20,12 +20,12 @@ import {
 } from "../../../domain/hcp";
 import {
   validateCalls,
-} from "../../../provided/mock-validator";
-import type { ExplorerDisplayRow } from "../displayRows";
-import explorerReducer from "../explorerSlice";
-import { CallsCell } from "./CallsCell";
+} from "../../../infrastructure/provided/mock-validator";
+import type { ExplorerDisplayRow } from "../utils/displayRows";
+import explorerReducer from "../state/explorerSlice";
+import { CallsCell } from "../components/CallsCell";
 
-jest.mock("../../../provided/mock-validator");
+jest.mock("../../../infrastructure/provided/mock-validator");
 
 const mockedValidateCalls =
   jest.mocked(validateCalls);
@@ -168,7 +168,11 @@ describe("CallsCell", () => {
     ).toBeInTheDocument();
 
     await waitFor(() => {
-      expect(input).toHaveValue(sourceCalls);
+      expect(
+        screen.getByRole("spinbutton", {
+          name: `Calls for ${entity.name}`,
+        }),
+      ).toHaveValue(sourceCalls);
     });
 
     expect(

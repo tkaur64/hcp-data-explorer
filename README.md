@@ -202,6 +202,24 @@ The supplied `theme-config.ts` file is not modified.
 
 ## Architecture
 
+### Source layout
+
+```text
+src/
+  app/                  Application bootstrap, store and global styles
+  domain/               HCP entities and domain calculations
+  features/explorer/
+    components/         Grid, toolbar and cell components
+    selectors/          Derived explorer state and display rows
+    state/              Redux slice and explorer state types
+    utils/               Aggregation, sorting, grouping and edit helpers
+    tests/               Explorer unit and component tests
+  infrastructure/provided/
+                        Supplied generator, validator and tenant config
+  theme/                Tenant theme validation and resolution
+  test/                 Shared test setup
+```
+
 ### Stable record identity
 
 The supplied dataset contains duplicate HCP IDs, so the business ID cannot safely serve as a React, Redux or AG Grid row key.

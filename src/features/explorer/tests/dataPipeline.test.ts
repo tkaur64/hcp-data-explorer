@@ -1,16 +1,16 @@
 import { describe, expect, test } from "@jest/globals";
 
-import type { HcpRecord } from "../../provided/data-generator";
-import { auditRows, createHcpEntities } from "../../domain/hcp";
-import { buildAggregates } from "./buildAggregates";
+import type { HcpRecord } from "../../../infrastructure/provided/data-generator";
+import { auditRows, createHcpEntities } from "../../../domain/hcp";
+import { buildAggregates } from "../utils/buildAggregates";
 import {
   createRegionGroupRow,
   createTerritoryGroupRow,
   createTerritoryRowKey,
   isRegionGroupRow,
   isTerritoryGroupRow,
-} from "./displayRows";
-import { buildGroupIndex } from "./groupIndex";
+} from "../utils/displayRows";
+import { buildGroupIndex } from "../utils/groupIndex";
 
 describe("data pipeline", () => {
   test("audits duplicate and invalid source data", () => {

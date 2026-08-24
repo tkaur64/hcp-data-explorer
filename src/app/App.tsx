@@ -4,15 +4,15 @@ import "./App.css";
 import {
   useAppDispatch,
   useAppSelector,
-} from "./app/hooks";
-import { ExplorerGrid } from "./features/explorer/components/ExplorerGrid";
-import { ExplorerToolbar } from "./features/explorer/components/ExplorerToolbar";
-import { selectExplorerSummary } from "./features/explorer/explorerSelectors";
-import { setTenantKey } from "./features/explorer/explorerSlice";
+} from "./hooks";
+import { ExplorerGrid } from "../features/explorer/components/ExplorerGrid";
+import { ExplorerToolbar } from "../features/explorer/components/ExplorerToolbar";
+import { selectExplorerSummary } from "../features/explorer/selectors/explorerSelectors";
+import { setTenantKey } from "../features/explorer/state/explorerSlice";
 import {
   resolveTenantTheme,
   TENANT_THEME_KEYS,
-} from "./theme/resolveTenantTheme";
+} from "../theme/resolveTenantTheme";
 
 function formatTenantName(tenantKey: string): string {
   return (

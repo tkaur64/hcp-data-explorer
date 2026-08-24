@@ -18,7 +18,7 @@ module.exports = {
     "src/**/*.{ts,tsx}",
     "!src/main.tsx",
     "!src/vite-env.d.ts",
-    "!src/provided/**",
+    "!src/infrastructure/provided/**",
     "!src/**/*.d.ts",
   ],
 

@@ -1,4 +1,4 @@
-import type { HcpEntity, HcpRowKey } from "../../domain/hcp";
+import type { HcpEntity, HcpRowKey } from "../../../domain/hcp";
 
 export type RegionRowKey = `region:${string}`;
 

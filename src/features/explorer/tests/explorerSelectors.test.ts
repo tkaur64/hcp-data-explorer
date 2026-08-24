@@ -1,15 +1,18 @@
 import { describe, expect, test } from "@jest/globals";
 
-import type { RootState } from "../../app/store";
-import { toNumericCalls } from "../../domain/hcp";
-import { createTerritoryRowKey } from "./displayRows";
-import { selectDisplayRows, selectMatchingHcpCount } from "./explorerSelectors";
+import type { RootState } from "../../../app/store";
+import { toNumericCalls } from "../../../domain/hcp";
+import { createTerritoryRowKey } from "../utils/displayRows";
+import {
+  selectDisplayRows,
+  selectMatchingHcpCount,
+} from "../selectors/explorerSelectors";
 import explorerReducer, {
   cycleSort,
   setSearchQuery,
   toggleTerritory,
-} from "./explorerSlice";
-import type { ExplorerState } from "./explorerTypes";
+} from "../state/explorerSlice";
+import type { ExplorerState } from "../state/explorerTypes";
 
 const baseState = explorerReducer(undefined, {
   type: "@@INIT",

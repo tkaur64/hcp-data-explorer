@@ -8,13 +8,13 @@ import {
   toNumericCalls,
   type HcpEntity,
   type HcpRowKey,
-} from "../../domain/hcp";
-import { createTerritoryRowKey } from "./displayRows";
-import { submitCallsEdit } from "./callsEditing";
-import { generateRows } from "../../provided/data-generator";
-import { buildAggregates } from "./buildAggregates";
+} from "../../../domain/hcp";
+import { createTerritoryRowKey } from "../utils/displayRows";
+import { submitCallsEdit } from "../utils/callsEditing";
+import { generateRows } from "../../../infrastructure/provided/data-generator";
+import { buildAggregates } from "../utils/buildAggregates";
 import type { Aggregate, ExplorerState, SortColumn } from "./explorerTypes";
-import type { TerritoryRowKey } from "./displayRows";
+import type { TerritoryRowKey } from "../utils/displayRows";
 
 export const hcpAdapter = createEntityAdapter<HcpEntity, HcpRowKey>({
   selectId: (record) => record.rowKey,

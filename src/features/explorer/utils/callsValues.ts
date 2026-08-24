@@ -1,5 +1,5 @@
-import { toNumericCalls, type HcpEntity } from "../../domain/hcp";
-import type { CallsEditState } from "./explorerTypes";
+import { toNumericCalls, type HcpEntity } from "../../../domain/hcp";
+import type { CallsEditState } from "../state/explorerTypes";
 
 export function getAcceptedCalls(
   entity: HcpEntity,

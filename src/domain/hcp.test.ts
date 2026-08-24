@@ -1,15 +1,7 @@
-import {
-  describe,
-  expect,
-  test,
-} from "@jest/globals";
+import { describe, expect, test } from "@jest/globals";
 
-import type { HcpRecord } from "../provided/data-generator";
-import {
-  calculateCpi,
-  createHcpEntities,
-  toNumericCalls,
-} from "./hcp";
+import type { HcpRecord } from "../infrastructure/provided/data-generator";
+import { calculateCpi, createHcpEntities, toNumericCalls } from "./hcp";
 
 describe("HCP domain helpers", () => {
   test("normalizes numeric Calls values and numeric strings", () => {

@@ -1,4 +1,4 @@
-import type { HcpRecord } from "../provided/data-generator";
+import type { HcpRecord } from "../infrastructure/provided/data-generator";
 
 export type HcpRowKey = `hcp:${number}`;
 

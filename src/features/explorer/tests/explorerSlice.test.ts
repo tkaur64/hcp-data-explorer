@@ -1,10 +1,13 @@
 import { describe, expect, test } from "@jest/globals";
 
-import { toNumericCalls, type HcpEntity } from "../../domain/hcp";
-import { submitCallsEdit } from "./callsEditing";
-import { createTerritoryRowKey } from "./displayRows";
-import explorerReducer, { redoLastEdit, undoLastEdit } from "./explorerSlice";
-import type { ExplorerState } from "./explorerTypes";
+import { toNumericCalls, type HcpEntity } from "../../../domain/hcp";
+import { submitCallsEdit } from "../utils/callsEditing";
+import { createTerritoryRowKey } from "../utils/displayRows";
+import explorerReducer, {
+  redoLastEdit,
+  undoLastEdit,
+} from "../state/explorerSlice";
+import type { ExplorerState } from "../state/explorerTypes";
 
 const baseState = explorerReducer(undefined, {
   type: "@@INIT",
@@ -38,7 +41,7 @@ if (sourceCalls === null) {
 
 const acceptedValue = sourceCalls === 20 ? 21 : 20;
 
-const alternateValue = acceptedValue === 30 ? 31 : 30;
+const alternateValue = acceptedValue + 10;
 
 const territoryKey = createTerritoryRowKey(entity.region, entity.territory);
 

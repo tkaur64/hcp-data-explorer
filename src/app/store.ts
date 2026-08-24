@@ -1,5 +1,5 @@
 import { configureStore } from "@reduxjs/toolkit";
-import explorerReducer from "../features/explorer/explorerSlice";
+import explorerReducer from "../features/explorer/state/explorerSlice";
 
 export const store = configureStore({
   reducer: {

@@ -1,6 +1,6 @@
 import type { EntityState } from "@reduxjs/toolkit";
-import type { HcpEntity, HcpRowKey } from "../../domain/hcp";
-import type { TerritoryRowKey } from "./displayRows";
+import type { HcpEntity, HcpRowKey } from "../../../domain/hcp";
+import type { TerritoryRowKey } from "../utils/displayRows";
 
 export type SortColumn =
   | "id"

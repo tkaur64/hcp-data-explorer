@@ -9,13 +9,13 @@ import {
 import {
   selectMatchingHcpCount,
   selectRegionNames,
-} from "../explorerSelectors";
+} from "../selectors/explorerSelectors";
 import {
   redoLastEdit,
   setRegionFilter,
   setSearchQuery,
   undoLastEdit,
-} from "../explorerSlice";
+} from "../state/explorerSlice";
 import "./ExplorerToolbar.css";
 
 export function ExplorerToolbar() {
