@@ -4,6 +4,13 @@ export type RegionRowKey = `region:${string}`;
 
 export type TerritoryRowKey = `territory:${string}:${string}`;
 
+export function createTerritoryRowKey(
+  region: string,
+  territory: string,
+): TerritoryRowKey {
+  return `territory:${region}:${territory}`;
+}
+
 export interface RegionGroupRow {
   rowType: "region";
   rowKey: RegionRowKey;
@@ -35,7 +42,7 @@ export function createTerritoryGroupRow(
 ): TerritoryGroupRow {
   return {
     rowType: "territory",
-    rowKey: `territory:${region}:${territory}`,
+    rowKey: createTerritoryRowKey(region, territory),
     region,
     territory,
   };

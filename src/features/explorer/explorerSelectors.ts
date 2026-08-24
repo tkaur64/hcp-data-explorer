@@ -1,7 +1,11 @@
 import { createSelector } from "@reduxjs/toolkit";
 import type { RootState } from "../../app/store";
 import type { ExplorerDisplayRow } from "./displayRows";
-import { createRegionGroupRow, createTerritoryGroupRow } from "./displayRows";
+import {
+  createRegionGroupRow,
+  createTerritoryGroupRow,
+  createTerritoryRowKey,
+} from "./displayRows";
 import { buildGroupIndex } from "./groupIndex";
 import { hcpAdapter } from "./explorerSlice";
 import type { HcpEntity } from "../../domain/hcp";
@@ -67,8 +71,9 @@ export const selectDisplayRows = createSelector(
       }> = [];
 
       for (const territory of territories) {
-        const rowKeys = groupIndex.rowKeysByTerritory[territory] ?? [];
+        const territoryKey = createTerritoryRowKey(region, territory);
 
+        const rowKeys = groupIndex.rowKeysByTerritory[territoryKey] ?? [];
         if (!isSearching) {
           territoryBlocks.push({
             territory,
@@ -122,10 +127,11 @@ export const selectDisplayRows = createSelector(
       }
 
       for (const { territory, matchingRecords } of territoryBlocks) {
+        const territoryKey = createTerritoryRowKey(region, territory);
         displayRows.push(createTerritoryGroupRow(region, territory));
 
         const territoryIsExpanded =
-          isSearching || Boolean(view.expandedTerritories[territory]);
+          isSearching || Boolean(view.expandedTerritories[territoryKey]);
 
         if (!territoryIsExpanded) {
           continue;
@@ -136,8 +142,7 @@ export const selectDisplayRows = createSelector(
           continue;
         }
 
-        const rowKeys = groupIndex.rowKeysByTerritory[territory] ?? [];
-
+        const rowKeys = groupIndex.rowKeysByTerritory[territoryKey] ?? [];
         for (const rowKey of rowKeys) {
           const entity = entities[rowKey];
 

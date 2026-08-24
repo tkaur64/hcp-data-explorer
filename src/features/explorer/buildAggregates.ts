@@ -1,6 +1,7 @@
 import { toNumericCalls } from "../../domain/hcp";
 import type { HcpEntity } from "../../domain/hcp";
 import type { Aggregate, ExplorerAggregates } from "./explorerTypes";
+import { createTerritoryRowKey } from "./displayRows";
 
 function createEmptyAggregate(): Aggregate {
   return {
@@ -37,10 +38,11 @@ export function buildAggregates(records: HcpEntity[]): ExplorerAggregates {
       aggregates.regions[record.region] ??
       (aggregates.regions[record.region] = createEmptyAggregate());
 
-    const territoryAggregate =
-      aggregates.territories[record.territory] ??
-      (aggregates.territories[record.territory] = createEmptyAggregate());
+    const territoryKey = createTerritoryRowKey(record.region, record.territory);
 
+    const territoryAggregate =
+      aggregates.territories[territoryKey] ??
+      (aggregates.territories[territoryKey] = createEmptyAggregate());
     addRecordToAggregate(regionAggregate, record);
     addRecordToAggregate(territoryAggregate, record);
   }

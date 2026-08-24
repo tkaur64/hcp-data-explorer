@@ -11,6 +11,7 @@ import {
 import { generateRows } from "../../provided/data-generator";
 import { buildAggregates } from "./buildAggregates";
 import type { ExplorerState, SortColumn } from "./explorerTypes";
+import type { TerritoryRowKey } from "./displayRows";
 
 export const hcpAdapter = createEntityAdapter<HcpEntity, HcpRowKey>({
   selectId: (record) => record.rowKey,
@@ -92,13 +93,12 @@ const explorerSlice = createSlice({
       state.view.expandedRegions[region] = !state.view.expandedRegions[region];
     },
 
-    toggleTerritory(state, action: PayloadAction<string>) {
-      const territory = action.payload;
+    toggleTerritory(state, action: PayloadAction<TerritoryRowKey>) {
+      const territoryKey = action.payload;
 
-      state.view.expandedTerritories[territory] =
-        !state.view.expandedTerritories[territory];
+      state.view.expandedTerritories[territoryKey] =
+        !state.view.expandedTerritories[territoryKey];
     },
-
     toggleSelection(state, action: PayloadAction<HcpRowKey>) {
       const rowKey = action.payload;
 

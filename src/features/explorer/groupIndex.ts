@@ -1,15 +1,16 @@
 import type { HcpEntity, HcpRowKey } from "../../domain/hcp";
+import { createTerritoryRowKey, type TerritoryRowKey } from "./displayRows";
 
 export interface ExplorerGroupIndex {
   regions: string[];
   territoriesByRegion: Record<string, string[]>;
-  rowKeysByTerritory: Record<string, HcpRowKey[]>;
+  rowKeysByTerritory: Partial<Record<TerritoryRowKey, HcpRowKey[]>>;
 }
 
 export function buildGroupIndex(records: HcpEntity[]): ExplorerGroupIndex {
   const territorySetsByRegion: Record<string, Set<string>> = {};
 
-  const rowKeysByTerritory: Record<string, HcpRowKey[]> = {};
+  const rowKeysByTerritory: Partial<Record<TerritoryRowKey, HcpRowKey[]>> = {};
 
   for (const record of records) {
     const territories =
@@ -18,9 +19,11 @@ export function buildGroupIndex(records: HcpEntity[]): ExplorerGroupIndex {
 
     territories.add(record.territory);
 
+    const territoryKey = createTerritoryRowKey(record.region, record.territory);
+
     const rowKeys =
-      rowKeysByTerritory[record.territory] ??
-      (rowKeysByTerritory[record.territory] = []);
+      rowKeysByTerritory[territoryKey] ??
+      (rowKeysByTerritory[territoryKey] = []);
 
     rowKeys.push(record.rowKey);
   }

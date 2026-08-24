@@ -21,7 +21,7 @@ export function GroupLabelCell({
     if (data?.rowType === "territory") {
       return Boolean(
         state.explorer.view.expandedTerritories[
-        data.territory
+        data.rowKey
         ],
       );
     }
@@ -51,7 +51,7 @@ export function GroupLabelCell({
     if (data?.rowType === "region") {
       dispatch(toggleRegion(data.region));
     } else if (data?.rowType === "territory") {
-      dispatch(toggleTerritory(data.territory));
+      dispatch(toggleTerritory(data.rowKey));
     }
   }
 
@@ -59,8 +59,8 @@ export function GroupLabelCell({
     <button
       type="button"
       className={`group-label ${isRegion
-          ? "group-label--region"
-          : "group-label--territory"
+        ? "group-label--region"
+        : "group-label--territory"
         }`}
       aria-expanded={expanded}
       aria-label={accessibleLabel}

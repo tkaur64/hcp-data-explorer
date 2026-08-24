@@ -25,7 +25,6 @@ function App() {
       </header>
       <ExplorerToolbar />
       <ExplorerGrid />
-      <ExplorerGrid />
     </main>
   );
 }

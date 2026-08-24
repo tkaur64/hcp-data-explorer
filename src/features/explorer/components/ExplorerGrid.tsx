@@ -17,9 +17,20 @@ import type { ExplorerDisplayRow } from "../displayRows";
 import { selectDisplayRows } from "../explorerSelectors";
 import { GroupLabelCell } from "./GroupLabelCell";
 import { GroupMetricCell } from "./GroupMetricCell";
+import { SortableHeader } from "../SortableHeader";
+import type { SortColumn } from "../explorerTypes";
 import "./ExplorerGrid.css";
 
 const communityModules = [AllCommunityModule];
+
+function sortableHeader(sortColumn: SortColumn) {
+  return {
+    headerComponent: SortableHeader,
+    headerComponentParams: {
+      sortColumn,
+    },
+  };
+}
 
 function formatNumber(value: unknown): string {
   return typeof value === "number"
@@ -40,18 +51,21 @@ export function ExplorerGrid() {
         flex: 2,
         minWidth: 230,
         cellRenderer: GroupLabelCell,
+        ...sortableHeader("name"),
       },
       {
         colId: "id",
         headerName: "HCP ID",
         flex: 1.15,
         minWidth: 135,
+        ...sortableHeader("id"),
         valueGetter: ({ data }) =>
           data?.rowType === "hcp" ? data.id : "",
       },
       {
         colId: "specialty",
         headerName: "Specialty",
+        ...sortableHeader("specialty"),
         flex: 1.2,
         minWidth: 145,
         valueGetter: ({ data }) =>
@@ -62,6 +76,7 @@ export function ExplorerGrid() {
       {
         colId: "region",
         headerName: "Region",
+        ...sortableHeader("region"),
         flex: 0.9,
         minWidth: 110,
         valueGetter: ({ data }) =>
@@ -70,6 +85,7 @@ export function ExplorerGrid() {
       {
         colId: "territory",
         headerName: "Territory",
+        ...sortableHeader("territory"),
         flex: 1.2,
         minWidth: 150,
         valueGetter: ({ data }) =>
@@ -80,6 +96,7 @@ export function ExplorerGrid() {
       {
         colId: "hcpCount",
         headerName: "HCPs",
+        ...sortableHeader("hcpCount"),
         flex: 0.7,
         minWidth: 85,
         type: "numericColumn",
@@ -96,6 +113,7 @@ export function ExplorerGrid() {
       },
       {
         colId: "calls",
+        ...sortableHeader("calls"),
         headerName: "Calls",
         flex: 0.75,
         minWidth: 90,
@@ -129,6 +147,7 @@ export function ExplorerGrid() {
       {
         colId: "trx",
         headerName: "TRx",
+        ...sortableHeader("trx"),
         flex: 0.75,
         minWidth: 90,
         type: "numericColumn",
@@ -149,6 +168,8 @@ export function ExplorerGrid() {
       {
         colId: "nrx",
         headerName: "NRx",
+        ...sortableHeader("nrx"),
+
         flex: 0.75,
         minWidth: 90,
         type: "numericColumn",
@@ -169,6 +190,7 @@ export function ExplorerGrid() {
       {
         colId: "cpi",
         headerName: "CPI",
+        ...sortableHeader("cpi"),
         flex: 0.75,
         minWidth: 95,
         type: "numericColumn",

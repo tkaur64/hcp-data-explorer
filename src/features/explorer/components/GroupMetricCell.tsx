@@ -36,7 +36,7 @@ export function GroupMetricCell({
 
     if (data?.rowType === "territory") {
       return state.explorer.aggregates.territories[
-        data.territory
+        data.rowKey
       ];
     }
 

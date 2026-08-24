@@ -1,5 +1,6 @@
 import type { EntityState } from "@reduxjs/toolkit";
 import type { HcpEntity, HcpRowKey } from "../../domain/hcp";
+import type { TerritoryRowKey } from "./displayRows";
 
 export type SortColumn =
   | "id"
@@ -7,6 +8,7 @@ export type SortColumn =
   | "specialty"
   | "region"
   | "territory"
+  | "hcpCount"
   | "calls"
   | "trx"
   | "nrx"
@@ -54,12 +56,12 @@ export interface ExplorerViewState {
   regionFilter: string | null;
   sort: SortState | null;
   expandedRegions: Record<string, boolean>;
-  expandedTerritories: Record<string, boolean>;
+  expandedTerritories: Partial<Record<TerritoryRowKey, boolean>>;
 }
 
 export interface ExplorerAggregates {
   regions: Record<string, Aggregate>;
-  territories: Record<string, Aggregate>;
+  territories: Partial<Record<TerritoryRowKey, Aggregate>>;
 }
 
 export interface ExplorerState extends EntityState<HcpEntity, HcpRowKey> {
